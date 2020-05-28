@@ -2,7 +2,7 @@
 
 This bash script is written to help performing a full backup for linux systems.
 
-NOTE: As this is an alpha build, data loss is not guaranteed. Make sure you backup your files before running the script. (Yeah it's quite ironic)
+**NOTE: As this is an alpha build, data loss is not guaranteed. Make sure you backup your files before running the script. (Yeah it's quite ironic)**
 
 ## How to add it to your system:
 
