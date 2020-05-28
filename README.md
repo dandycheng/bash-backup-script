@@ -40,5 +40,6 @@ _Do it based on your own preference or..._
   
 ## Future implementations:
   
+  - Integrity check for each compression
   - Multilevel compression
   - Better UX
