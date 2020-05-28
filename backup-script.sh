@@ -1,22 +1,21 @@
 #!/bin/bash
-if [ $EUID -ne 0 ]; then
-    echo "Please run this code as a root user to prevent pausing for required packages installations"
+if [[ $EUID -ne 0 ]]; then
+    echo -e "Please run this code as a root user to prevent pausing for required packages installations\n"
 fi
-currentDir=''
-
+initialDir=$PWD
+currentDir=$1
 reqDir() {
-    read -p "Change to the desired directory for backup: " CURRENT_DIR
+    read -p "Change to the desired directory for backup: " currentDir
 }
-reqDir
 
-while [ ! -d $CURRENT_DIR ]; do
-    echo The directory \"$CURRENT_DIR\" does not exist, please use a valid directory:
-    echo
+while [[ ! -d $currentDir ]] || [[ $currentDir == "" ]]; do
+    echo "The directory \"$currentDir\" does not exist, please use a valid directory"
     reqDir
 done
 
-cd $CURRENT_DIR
+cd $currentDir
 
+# Replacing spaces with custom delimiters to prevent line break
 folders=()
 for folder in ./*/; do
     folders+=`echo "$folder<><> <><>on<><>"| tr ' ' '-' | tr '<><>' ' ' | tr -d './'`
@@ -28,32 +27,40 @@ result=`dialog --stdout --hline "\Zb\Z1DO NOT CLOSE THE TERMINAL DURING BACKUP P
 
 
 echo Checking dependencies...
-if [ ! -f /usr/bin/tree ]; then
+if [[ ! -f /usr/bin/tree ]]; then
     echo Installing package dependencies...
     sudo apt-get install tree  -y
 fi
 echo
 
-backupFolder=`pwd | grep -Po '\w+$'`-backup-\($(date | tr ' ' '_')\)
+date=`date | tr ' ' '_'`
+
+backupFolder=`pwd | grep -Po '\w+$'`_backup_\($date\)
 mkdir .$backupFolder
-if [ -f ./.backup-temp ]; then
-    touch .backup-temp
-else
-    > .backup-temp
-fi
 
+compressDirs(){
+    for x in ${result[@]}; do
+        if [[ $x != $backupLogFile ]]; then
+            tar -cf - $x | xz -6e -k > $x.tar.xz
+            mv $x.tar.xz .$backupFolder
+        fi
+    done
+}
 
-for x in ${result[@]}; do
-    if [[ ! $x=~"^\.?Desktop-backup"  ]]; then
-        tree -iL 1 --noreport $x >> .backup-temp
-    fi
-done
-
-for x in `cat ./.backup-temp`; do
-    if [[ $x != ".backup-temp" ]]; then
-        tar -zvf $x.tar.gz -c $x
-        mv $x.tar.gz .$backupFolder
-    fi
-done
+compressDirs
 
 mv .$backupFolder $backupFolder
+logDesc="This backup log shows the directory that has been backed up to $backupFolder.\n"
+fileList=`echo -e "DIRECTORIES\n------------\n${result[@]}" | tr ' ' '\n'`
+
+backupLogFile=backup_log_\($date\)
+touch $backupLogFile
+echo -e "$logDesc\n$fileList" > "$backupLogFile"
+mv $backupLogFile -t $backupFolder
+
+tar -cf - $backupFolder | xz -9e > $backupFolder.tar.xz
+if [[ $PWD != $initialDir ]]; then
+    mv $backupFolder.tar.xz -t $initialDir
+fi
+rm -rf $backupFolder
+cd $initialDir
