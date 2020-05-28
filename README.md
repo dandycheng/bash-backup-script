@@ -10,7 +10,7 @@ Clone from repo:
 
 `git clone https://github.com/dandycheng/bash-backup-script.git`
 
-## Via CURL:
+### Via CURL:
 
 `curl https://raw.githubusercontent.com/dandycheng/bash-backup-script/master/backup-script.sh --output backup-script.sh`
 
