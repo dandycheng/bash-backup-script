@@ -1,9 +1,16 @@
 #!/bin/bash
-if [[ $EUID -ne 0 ]]; then
+
+isRoot(){
+    return $EUID -ne 0
+}
+
+if [[ ! isRoot ]]; then
     echo -e "Please run this code as a root user to prevent pausing for required packages installations\n"
 fi
-initialDir=$PWD
+
+initialDir=`echo $PWD`
 currentDir=$1
+
 reqDir() {
     read -p "Change to the desired directory for backup: " currentDir
 }
@@ -35,7 +42,7 @@ echo
 
 date=`date | tr ' ' '_'`
 
-backupFolder=`pwd | grep -Po '\w+$'`_backup_\($date\)
+backupFolder="backup_($datee)"
 mkdir .$backupFolder
 
 compressDirs(){
@@ -59,8 +66,13 @@ echo -e "$logDesc\n$fileList" > "$backupLogFile"
 mv $backupLogFile -t $backupFolder
 
 tar -cf - $backupFolder | xz -9e > $backupFolder.tar.xz
+
+if [[ isRoot ]]; then
+    chmod 777 $backupFolder.tar.xz
+fi
+
 if [[ $PWD != $initialDir ]]; then
-    mv $backupFolder.tar.xz -t $initialDir
+    mv $backupFolder.tar.xz -t "$initialDir"
 fi
 rm -rf $backupFolder
-cd $initialDir
+cd "$initialDir"
