@@ -36,7 +36,7 @@ _Do it based on your own preference or..._
 
 ## Known bugs:
 
-  - Unable to perform backups on folders with spaces
+  - Unable to perform backups on folders with spaces (Causes data loss)
   
 ## Future implementations:
   
