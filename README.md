@@ -19,7 +19,7 @@ Clone from repo:
 
 ## After downloading
 
-_Do it based on your own preference or..._
+*Do it based on your own preference or...*
 
 **Move to home directory:**
 
